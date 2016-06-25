@@ -3,6 +3,7 @@
 ### This function will return all relevant information regarding fenwick,
 ### and will generate a "report" based on the inputs
 def fenwick_report(sf, msf, sa, msa, bsa, toi, seconds,
+    isf=None, imsf=None,
     tsf=None, tmsf=None, tsa=None, tmsa=None, tbsa=None):
     """Generates a fenwick report for a given player, takes a lot of inputs to generate all fenwick figures
     sf = On-Ice Shots For (SF)
@@ -12,6 +13,8 @@ def fenwick_report(sf, msf, sa, msa, bsa, toi, seconds,
     bsa = On-Ice Blocked Shots Against (BSA)
     toi = Time On Ice, in seconds
     seconds = Total Time Elapsed, in seconds
+    isf = Individual Shots For
+    imsf = Individual Missed Shots For
     tsf = Team Shots For
     tmsf = Team Missed Shots For
     tsa = Team Shots Against
@@ -25,6 +28,8 @@ def fenwick_report(sf, msf, sa, msa, bsa, toi, seconds,
     fenwick_data["ff60"] = fenwick_for_60(toi, ff)
     fenwick_data["fa60"] = fenwick_against_60(toi, fa)
     fenwick_data["fon"] = fenwick_pace(ff60, fa60)
+    if isf is not None:
+        fenwick_data["iff"] = fenwick_for(isf, imsf)
     if tsf is not None:
         # Find pre-reqs for fenwick OFF
         tff = fenwick_for(tsf, tmsf)

@@ -3,6 +3,7 @@
 ### This function will return all relevant information regarding corsi,
 ### and will generate a "report" based on the inputs
 def corsi_report(sf, msf, bsf, sa, msa, bsa, toi, seconds,
+    isf=None, imsf=None, ibsf=None,
     tsf=None, tmsf=None, tbsf=None, tsa=None, tmsa=None, tbsa=None):
     """Generates a corsi report for a given player, takes a lot of inputs to generate all corsi figures
     sf = On-Ice Shots For (SF)
@@ -13,6 +14,9 @@ def corsi_report(sf, msf, bsf, sa, msa, bsa, toi, seconds,
     bsa = On-Ice Blocked Shots Against (BSA)
     toi = Time On Ice, in seconds
     seconds = Total Time Elapsed, in seconds
+    isf = Individual Shots For (iSF)
+    imsf = Individual Missed Shots For (iMSF)
+    ibsf = Individual Blocked Shots For (iBSF)
     tsf = Team Shots For
     tmsf = Team Missed Shots For
     tbsf = Team Blocked Shots For
@@ -28,6 +32,8 @@ def corsi_report(sf, msf, bsf, sa, msa, bsa, toi, seconds,
     corsi_data["cf60"] = corsi_for_60(toi, cf)
     corsi_data["ca60"] = corsi_against_60(toi, ca)
     corsi_data["con"] = corsi_pace(cf60, ca60)
+    if isf is not None:
+        corsi_data["icf"] = corsi_for(isf, imsf, ibsf)
     if tsf is not None:
         # Find pre-reqs for Corsi OFF
         tcf = corsi_for(tsf, tmsf, tbsf)
