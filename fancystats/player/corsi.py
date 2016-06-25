@@ -3,7 +3,7 @@
 ### This function will return all relevant information regarding corsi,
 ### and will generate a "report" based on the inputs
 def corsi_report(sf, msf, bsf, sa, msa, bsa, toi, seconds,
-                 tsf=None, tmsf=None, tbsf=None, tsa=None, tmsa=None, tbsa=None):
+    tsf=None, tmsf=None, tbsf=None, tsa=None, tmsa=None, tbsa=None):
     """Generates a corsi report for a given player, takes a lot of inputs to generate all corsi figures
     sf = On-Ice Shots For (SF)
     msf = On-Ice Missed Shots For (MSF)
