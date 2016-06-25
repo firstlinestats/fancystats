@@ -1,3 +1,4 @@
+from __future__ import division
 
 
 ### This function will return all relevant information regarding corsi,
