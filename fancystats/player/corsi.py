@@ -34,7 +34,7 @@ def corsi_report(sf, msf, bsf, sa, msa, bsa, toi, seconds,
         tca = corsi_against(tsa, tmsa, tbsa)
         tcor = corsi(tcf, tca)
         # Calculate Corsi OFF
-        corsi_data["coff"] = corsi_off(toi, seconds, cor, tcor)
+        corsi_data["coff"] = corsi_off(toi, seconds, corsi_data["cor"], tcor)
         corsi_data["crel"] = corsi_rel(con, coff)
     return corsi_data
 
