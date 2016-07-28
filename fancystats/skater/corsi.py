@@ -82,7 +82,7 @@ def calc_60(toi, c, fname):
     except CorsiException, arg:
         print "Corsi Exception " + fname + ": ", arg
     except:
-        print "Corsi Exception " + fname + ": Issue with calculating CF60"
+        print "Corsi Exception " + fname + ": Issue with calculating per 60"
 
 
 ### The functions below can be called directly, or the results can be pulled from the full report

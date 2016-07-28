@@ -121,7 +121,8 @@ def danger_zone(xcoord, ycoord):
 def scoring_chance(period, team, period_time, xcoord, ycoord, play_type,
         ps_period=None, ps_team=None, ps_type=None, ps_period_time=None,
         pp_period=None, pp_period_time=None, pp_xcoord=None):
-    """Determines the zone and the scoring chance of a given shot given the previous shot and previous play
+    """Determines the zone and the scoring chance of a given shot given the previous shot and previous play,
+    both are defined by WAR-On-Ice here http://blog.war-on-ice.com/new-defining-scoring-chances/
     period = Period of the current shot
     team = Unique identifier of the current team
     period_time = Time, in seconds, of the shot
