@@ -118,6 +118,22 @@ def danger_zone(xcoord, ycoord):
     return "LOW"
 
 
+def scoring_chance_standard(play, prev_shot, prev_play):
+    if prev_shot is not None and prev_play is not None:
+        return scoring_chance(play["period"], play["team_id"], play["periodTime"], play["xcoord"], play["ycoord"],
+            play["playType"], prev_shot["period"], prev_shot["team_id"], prev_shot["playType"],
+            prev_shot["periodTime"], prev_play["period"], prev_play["periodTime"], prev_play["xcoord"])
+    elif prev_shot is None and prev_play is not None:
+        return scoring_chance(play["period"], play["team_id"], play["periodTime"], play["xcoord"], play["ycoord"],
+            play["playType"], pp_period=prev_play["period"], pp_period_time=prev_play["periodTime"], pp_xcoord=prev_play["xcoord"])
+    elif prev_shot is not None and prev_play is None:
+        return scoring_chance(play["period"], play["team_id"], play["periodTime"], play["xcoord"], play["ycoord"],
+            play["playType"], prev_shot["period"], prev_shot["team_id"], prev_shot["playType"],
+            prev_shot["periodTime"])
+    else:
+        return scoring_chance(play["period"], play["team_id"], play["periodTime"], play["xcoord"], play["ycoord"], play["playType"])
+
+
 def scoring_chance(period, team, period_time, xcoord, ycoord, play_type,
         ps_period=None, ps_team=None, ps_type=None, ps_period_time=None,
         pp_period=None, pp_period_time=None, pp_xcoord=None):

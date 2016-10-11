@@ -5,3 +5,4 @@ import goal
 import player
 import shot
 import toi
+import team
