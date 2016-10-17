@@ -79,6 +79,14 @@ playerTypes = (
     (16, "Assist 2")
 )
 
+playerPositions = (
+    ("Center", "C"),
+    ("Right Wing", "R"),
+    ("Left Wing", "L"),
+    ("Defender", "D"),
+    ("Goalie", "G"),
+)
+
 teamNames = (
     (21, 'Avalanche'),
     (16, 'Blackhawks'),

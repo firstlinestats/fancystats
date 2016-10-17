@@ -110,7 +110,6 @@ def check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam
 
 def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=None, hsc=None, asc=None):
     stats = {}
-    missing = set()
     prev_shot = None
     prev_play = None
     stats[homeTeam] = init_team()
@@ -141,32 +140,31 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         if awayinclude:
             stats[awayTeam]["toi"] += playTime
 
-        if play["playType"] == "GOAL":
-            stats[play["team_id"]]["gf"] += 1
-            stats[play["team_id"]]["sf"] += 1
-        elif play["playType"] == "SHOT":
-            stats[play["team_id"]]["sf"] += 1
-        elif play["playType"] == "MISSED_SHOT":
-            stats[play["team_id"]]["msf"] += 1
-        elif play["playType"] == "BLOCKED_SHOT":
-            stats[play["team_id"]]["bsf"] += 1
-        elif play["playType"] == "FACEOFF":
-            if play["period"] % 2 == 0:
-                play["xcoord"] = -play["xcoord"]
-            if play["xcoord"] < -25.00:
-                stats[awayTeam]["zso"] += 1
-            elif play["xcoord"] > 25.00:
-                stats[homeTeam]["zso"] += 1
-            stats[play["team_id"]]["fo_w"] += 1
-        elif play["playType"] == "HIT":
-            stats[play["team_id"]]["hit"] += 1
-        elif play["playType"] == "PENALTY":
-            stats[play["team_id"]]["pn"] += 1
-        else:
-            missing.add(play["playType"])
+        if (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude):
+            if play["playType"] == "GOAL":
+                stats[play["team_id"]]["gf"] += 1
+                stats[play["team_id"]]["sf"] += 1
+            elif play["playType"] == "SHOT":
+                stats[play["team_id"]]["sf"] += 1
+            elif play["playType"] == "MISSED_SHOT":
+                stats[play["team_id"]]["msf"] += 1
+            elif play["playType"] == "BLOCKED_SHOT":
+                stats[play["team_id"]]["bsf"] += 1
+            elif play["playType"] == "FACEOFF":
+                if play["period"] % 2 == 0:
+                    play["xcoord"] = -play["xcoord"]
+                if play["xcoord"] < -25.00:
+                    stats[awayTeam]["zso"] += 1
+                elif play["xcoord"] > 25.00:
+                    stats[homeTeam]["zso"] += 1
+                stats[play["team_id"]]["fo_w"] += 1
+            elif play["playType"] == "HIT":
+                stats[play["team_id"]]["hit"] += 1
+            elif play["playType"] == "PENALTY":
+                stats[play["team_id"]]["pn"] += 1
 
-        if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
-            prev_shot = play
+            if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
+                prev_shot = play
         prev_play = play
 
     for team in stats:
