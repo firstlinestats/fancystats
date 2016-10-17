@@ -1,5 +1,6 @@
 import corsi
 import shot
+import toi
 
 
 def init_team():
@@ -13,97 +14,114 @@ def init_team():
     return ts
 
 
-def check_play(self, home, away, play_id, teamStrengths, scoreSituation, hsc, asc):
+def check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam, p2t):
     hb = False
     ab = False
-    if play_id in home:
-        hp = home[play_id]["count"]
-        ap = away[play_id]["count"]
-        hg = home[play_id]["goalie"]
-        ag = away[play_id]["goalie"]
-        if teamStrengths is None or teamStrengths == "all":
+        
+    hp = 0
+    ap = 0
+    hg = 0
+    ag = 0
+    for player in play["players"]:
+        pinfo = p2t[player["player_id"]]
+        if pinfo[1] == homeTeam:
+            if pinfo[2] == 0:
+                hp += 1
+            else:
+                hg += 1
+        else:
+            if pinfo[2] == 0:
+                ap += 1
+            else:
+                ag += 1
+
+    if teamStrengths is None or teamStrengths == "all":
+        hb, ab = True, True
+    elif teamStrengths == "4v4" and hp == 5 and ap == 5:
+        hb, ab = True, True
+    elif teamStrengths == "even" and hp == ap and hp == 6:
+        hb, ab = True, True
+    elif teamStrengths == "pp":
+        if hp == ap + 1:
+            hb, ab = True, False
+        elif hp + 1 == ap:
+            hb, ab = False, True
+    elif teamStrengths == "pk":
+        if hp == ap + 1:
+            hb, ab = False, True
+        elif hp + 1 == ap:
+            hb, ab = True, False
+    elif teamStrengths == "3v3" and hp == 4 and ap == 4:
+        hb, ab = True, True
+    elif teamStrengths == "og":
+        if hg is True and ag is False:
+            hb, ab = False, True
+        elif hg is False and ag is True:
+            hb, ab = True, False
+        elif hg is True and ag is True:
             hb, ab = True, True
-        elif teamStrengths == "4v4" and hp == 5 and ap == 5:
+    elif teamStrengths == "tg":
+        if hg is True and ag is False:
+            hb, ab = True, False
+        elif hg is False and ag is True:
+            hb, ab = False, True
+        elif hg is True and ag is True:
             hb, ab = True, True
-        elif teamStrengths == "even" and hp == ap and hp == 6:
-            hb, ab = True, True
-        elif teamStrengths == "pp":
-            if hp == ap + 1:
-                hb, ab = True, False
-            elif hp + 1 == ap:
-                hb, ab = False, True
-        elif teamStrengths == "pk":
-            if hp == ap + 1:
-                hb, ab = False, True
-            elif hp + 1 == ap:
-                hb, ab = True, False
-        elif teamStrengths == "3v3" and hp == 4 and ap == 4:
-            hb, ab = True, True
-        elif teamStrengths == "og":
-            if hg is True and ag is False:
-                hb, ab = False, True
-            elif hg is False and ag is True:
-                hb, ab = True, False
-            elif hg is True and ag is True:
-                hb, ab = True, True
-        elif teamStrengths == "tg":
-            if hg is True and ag is False:
-                hb, ab = True, False
-            elif hg is False and ag is True:
-                hb, ab = False, True
-            elif hg is True and ag is True:
-                hb, ab = True, True
-        if scoreSituation is not None and scoreSituation != "all":
-            # Only account for removing the play!
-            if scoreSituation == "t3+":
-                if hsc <= asc + 3:
-                    hb = False
-                if asc <= hsc + 3:
-                    ab = False
-            elif scoreSituation == "t2":
-                if hsc != asc - 2:
-                    hb = False
-                if asc != hsc - 2:
-                    ab = False
-            elif scoreSituation == "t1":
-                if hsc != asc - 1:
-                    hb = False
-                if asc != hsc - 1:
-                    ab = False
-            elif scoreSituation == "t":
-                if hsc != asc:
-                    hb, ab = False, False
-            elif scoreSituation == "l3+":
-                if hsc < asc + 3:
-                    hb = False
-                if asc < hsc + 3:
-                    ab = False
-            elif scoreSituation == "l2":
-                if hsc != asc + 2:
-                    hb = False
-                if asc != hsc + 2:
-                    ab = False
-            elif scoreSituation == "l1":
-                if hsc != asc + 1:
-                    hb = False
-                if asc != hsc + 1:
-                    ab = False
-            elif scoreSituation == "w1":
-                if hsc > asc + 1 or hsc < asc - 1:
-                    hb, ab = False, False
+    if scoreSituation is not None and scoreSituation != "all":
+        # Only account for removing the play!
+        if scoreSituation == "t3+":
+            if hsc <= asc + 3:
+                hb = False
+            if asc <= hsc + 3:
+                ab = False
+        elif scoreSituation == "t2":
+            if hsc != asc - 2:
+                hb = False
+            if asc != hsc - 2:
+                ab = False
+        elif scoreSituation == "t1":
+            if hsc != asc - 1:
+                hb = False
+            if asc != hsc - 1:
+                ab = False
+        elif scoreSituation == "t":
+            if hsc != asc:
+                hb, ab = False, False
+        elif scoreSituation == "l3+":
+            if hsc < asc + 3:
+                hb = False
+            if asc < hsc + 3:
+                ab = False
+        elif scoreSituation == "l2":
+            if hsc != asc + 2:
+                hb = False
+            if asc != hsc + 2:
+                ab = False
+        elif scoreSituation == "l1":
+            if hsc != asc + 1:
+                hb = False
+            if asc != hsc + 1:
+                ab = False
+        elif scoreSituation == "w1":
+            if hsc > asc + 1 or hsc < asc - 1:
+                hb, ab = False, False
     return hb, ab
 
 
-def get_stats(pbp, homeTeam, awayTeam):
+def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=None, hsc=None, asc=None):
     stats = {}
     missing = set()
     prev_shot = None
     prev_play = None
-
+    stats[homeTeam] = init_team()
+    stats[awayTeam] = init_team()
     for play in pbp:
+        if prev_play is not None and prev_play["period"] != play["period"]:
+            prev_play = None
+
         # Check for datetime for times
         if type(play["periodTime"]) != type(6):
-            play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute * 60  # Thanks, NHL
+            play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute  # Thanks, NHL
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
             zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
             if danger < 3:
@@ -111,9 +129,18 @@ def get_stats(pbp, homeTeam, awayTeam):
             else:
                 stats[play["team_id"]]["hscf"] += 1
 
+        homeinclude, awayinclude = check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam, p2t)
+        playTime = 0
+        if prev_play is not None:
+            playTime = play["periodTime"] - prev_play["periodTime"]
+        else:
+            playTime = play["periodTime"]
 
-        if play["team_id"] is not None and play["team_id"] not in stats:
-            stats[play["team_id"]] = init_team()
+        if homeinclude:
+            stats[homeTeam]["toi"] += playTime
+        if awayinclude:
+            stats[awayTeam]["toi"] += playTime
+
         if play["playType"] == "GOAL":
             stats[play["team_id"]]["gf"] += 1
             stats[play["team_id"]]["sf"] += 1
@@ -138,16 +165,14 @@ def get_stats(pbp, homeTeam, awayTeam):
         else:
             missing.add(play["playType"])
 
-
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
             prev_shot = play
         prev_play = play
 
-    print missing
-
     for team in stats:
         td = stats[team]
         td["cf"] = corsi.calc_corsi(td["sf"], td["msf"], td["bsf"], "team.get_stats")
+        td["toi"] = toi.format_minutes(td["toi"])
 
     return stats
             
