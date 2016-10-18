@@ -1,6 +1,7 @@
 import constants
 import team
 import shot
+import toi
 
 
 def get_player_type(given):
@@ -83,6 +84,13 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         else:
             playTime = play["periodTime"]
 
+        for player in play["onice"]:
+            pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+            if pteam == homeTeam and homeinclude:
+                stats[homeTeam][pid]["toi"] += playTime
+            elif pteam == awayTeam and awayinclude:
+                stats[awayTeam][pid]["toi"] += playTime
+
         if play["playType"] == "GOAL":
             # Individual stats
             for player in play["players"]:
@@ -98,7 +106,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                         stats[pteam][pid]["a2"] += 1
 
             # On-Ice stats
-            play_corsi(stats, play, homeTeam, awayTeam)
+            play_corsi(stats, play, homeTeam, awayTeam, True)
 
         elif play["playType"] == "SHOT":
             # Individual Stats
@@ -108,26 +116,52 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                     stats[pteam][pid]["sf"] += 1
 
             # On-Ice stats
-            play_fenwick(stats, play, homeTeam, awayTeam)
-            play_corsi(stats, play, homeTeam, awayTeam)
+            play_fenwick(stats, play, homeTeam, awayTeam, False)
+            play_corsi(stats, play, homeTeam, awayTeam, False)
 
         elif play["playType"] == "MISSED_SHOT":
+            # Individual Stats
+            for player in play["players"]:
+                pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                if player["player_type"] == 7:
+                    stats[pteam][pid]["sf"] += 1
 
             # On-Ice stats
-            play_fenwick(stats, play, homeTeam, awayTeam)
-            play_corsi(stats, play, homeTeam, awayTeam)
+            play_fenwick(stats, play, homeTeam, awayTeam, False)
+            play_corsi(stats, play, homeTeam, awayTeam, False)
 
         elif play["playType"] == "BLOCKED_SHOT":
+            # Individual Stats
+            for player in play["players"]:
+                pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                if player["player_type"] == 7:
+                    stats[pteam][pid]["sf"] += 1
 
             # On-Ice stats
-            play_corsi(stats, play, awayTeam, homeTeam) # Swap for blocked shots
+            play_corsi(stats, play, awayTeam, homeTeam, False) # Swap for blocked shots
 
         elif play["playType"] == "FACEOFF":
-            pass
+            # Individual Stats
+            for player in play["players"]:
+                pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                if player["player_type"] == 1:
+                    stats[pteam][pid]["fo_w"] += 1
+                elif player["player_type"] == 2:
+                    stats[pteam][pid]["fo_l"] += 1
         elif play["playType"] == "HIT":
-            pass
+            for player in play["players"]:
+                pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                if player["player_type"] == 3:
+                    stats[pteam][pid]["hitplus"] += 1
+                elif player["player_type"] == 4:
+                    stats[pteam][pid]["hitminus"] += 1
         elif play["playType"] == "PENALTY":
-            pass
+            for player in play["players"]:
+                pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                if player["player_type"] == 10:
+                    stats[pteam][pid]["pnplus"] += 1
+                elif player["player_type"] == 11:
+                    stats[pteam][pid]["pnminus"] += 1
 
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
             prev_shot = play
@@ -137,26 +171,33 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         for pid in stats[pteam]:
             player = stats[pteam][pid]
             player["p"] = player["g"] + player["a1"] + player["a2"]
+            player["toi"] = toi.format_minutes(player["toi"])
 
     return stats
 
 
-def play_fenwick(stats, play, homeTeam, awayTeam):
-    play_stat(stats, play, homeTeam, awayTeam, "ff", "fa")
+def play_fenwick(stats, play, homeTeam, awayTeam, isGoal):
+    play_stat(stats, play, homeTeam, awayTeam, "ff", "fa", isGoal)
 
 
-def play_corsi(stats, play, homeTeam, awayTeam):
-    play_stat(stats, play, homeTeam, awayTeam, "cf", "ca")
+def play_corsi(stats, play, homeTeam, awayTeam, isGoal):
+    play_stat(stats, play, homeTeam, awayTeam, "cf", "ca", isGoal)
 
 
-def play_stat(stats, play, homeTeam, awayTeam, vf, va):
+def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal):
     for player in play["onice"]:
         pid, pteam = get_info(player, stats, homeTeam, awayTeam)
         if pteam is not None and pid in stats[pteam]:
             if pteam == play["team_id"]:
                 stats[pteam][pid][vf] += 1
+                if isGoal:
+                    stats[pteam][pid]["gf"] += 1
+                    stats[pteam][pid]["gplusminus"] += 1
             else:
                 stats[pteam][pid][va] += 1
+                if isGoal:
+                    stats[pteam][pid]["ga"] += 1
+                    stats[pteam][pid]["gplusminus"] -= 1
 
 
 def get_info(player, stats, homeTeam, awayTeam):
