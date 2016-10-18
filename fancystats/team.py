@@ -140,31 +140,38 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         if awayinclude:
             stats[awayTeam]["toi"] += playTime
 
-        if (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude):
-            if play["playType"] == "GOAL":
+        include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
+
+        if play["playType"] == "GOAL":
+            if include:
                 stats[play["team_id"]]["gf"] += 1
                 stats[play["team_id"]]["sf"] += 1
-            elif play["playType"] == "SHOT":
+        elif play["playType"] == "SHOT":
+            if include:
                 stats[play["team_id"]]["sf"] += 1
-            elif play["playType"] == "MISSED_SHOT":
+        elif play["playType"] == "MISSED_SHOT":
+            if include:
                 stats[play["team_id"]]["msf"] += 1
-            elif play["playType"] == "BLOCKED_SHOT":
+        elif play["playType"] == "BLOCKED_SHOT":
+            if include:
                 stats[play["team_id"]]["bsf"] += 1
-            elif play["playType"] == "FACEOFF":
-                if play["period"] % 2 == 0:
-                    play["xcoord"] = -play["xcoord"]
-                if play["xcoord"] < -25.00:
-                    stats[awayTeam]["zso"] += 1
-                elif play["xcoord"] > 25.00:
-                    stats[homeTeam]["zso"] += 1
-                stats[play["team_id"]]["fo_w"] += 1
-            elif play["playType"] == "HIT":
+        elif play["playType"] == "FACEOFF":
+            if play["period"] % 2 == 0:
+                play["xcoord"] = -play["xcoord"]
+            if play["xcoord"] < -25.00 and awayinclude:
+                stats[awayTeam]["zso"] += 1
+            elif play["xcoord"] > 25.00 and homeinclude:
+                stats[homeTeam]["zso"] += 1
+            stats[play["team_id"]]["fo_w"] += 1
+        elif play["playType"] == "HIT":
+            if include:
                 stats[play["team_id"]]["hit"] += 1
-            elif play["playType"] == "PENALTY":
+        elif play["playType"] == "PENALTY":
+            if include:
                 stats[play["team_id"]]["pn"] += 1
 
-            if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
-                prev_shot = play
+        if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
+            prev_shot = play
         prev_play = play
 
     for team in stats:
