@@ -176,7 +176,11 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
     for team in stats:
         td = stats[team]
-        td["cf"] = corsi.calc_corsi(td["sf"], td["msf"], td["bsf"], "team.get_stats")
+        if team == homeTeam:
+            bsf = stats[awayTeam]["bsf"]
+        else:
+            bsf = stats[homeTeam]["bsf"]
+        td["cf"] = corsi.calc_corsi(td["sf"], td["msf"], bsf, "team.get_stats")
         td["toi"] = toi.format_minutes(td["toi"])
 
     return stats
