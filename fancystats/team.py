@@ -130,16 +130,6 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
         oinclude = (play["team_id"] == homeTeam and awayinclude) or (play["team_id"] == awayTeam and homeinclude)
 
-        homeinclude, awayinclude = check_play(play,
-            teamStrengths,
-            scoreSituation,
-            hsc,
-            asc,
-            homeTeam,
-            awayTeam,
-            p2t)
-        include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
-
         # Check for datetime for times
         if type(play["periodTime"]) != type(6):
             play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute  # Thanks, NHL
