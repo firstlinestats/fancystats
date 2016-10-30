@@ -22,7 +22,8 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
     ap = 0
     hg = 0
     ag = 0
-    for player in play["onice"]:
+
+    for player in play["players"]:
         pinfo = p2t[player["player_id"]]
         if pinfo[1] == homeTeam:
             if pinfo[2] == 0:
@@ -119,6 +120,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
     prev_play = None
     stats[homeTeam] = init_team()
     stats[awayTeam] = init_team()
+
     for play in pbp:
         if prev_play is not None and prev_play["period"] != play["period"]:
             prev_play = None
@@ -128,12 +130,22 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
         oinclude = (play["team_id"] == homeTeam and awayinclude) or (play["team_id"] == awayTeam and homeinclude)
 
+        homeinclude, awayinclude = check_play(play,
+            teamStrengths,
+            scoreSituation,
+            hsc,
+            asc,
+            homeTeam,
+            awayTeam,
+            p2t)
+        include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
+
         # Check for datetime for times
         if type(play["periodTime"]) != type(6):
             play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute  # Thanks, NHL
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"] and include:
             zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
-            if danger < 3:
+            if danger < 3: 
                 stats[play["team_id"]]["scf"] += 1
             else:
                 stats[play["team_id"]]["hscf"] += 1
@@ -148,7 +160,6 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
             stats[homeTeam]["toi"] += playTime
         if awayinclude:
             stats[awayTeam]["toi"] += playTime
-
 
         if play["playType"] == "GOAL":
             if include:
