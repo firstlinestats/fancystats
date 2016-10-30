@@ -22,6 +22,7 @@ def check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam
     ap = 0
     hg = 0
     ag = 0
+    print teamStrengths
     for player in play["players"]:
         pinfo = p2t[player["player_id"]]
         if pinfo[1] == homeTeam:
@@ -108,27 +109,38 @@ def check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam
     return hb, ab
 
 
-def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=None, hsc=None, asc=None):
+def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None,
+        scoreSituation=None, hsc=None, asc=None):
     stats = {}
     prev_shot = None
     prev_play = None
     stats[homeTeam] = init_team()
     stats[awayTeam] = init_team()
+
     for play in pbp:
         if prev_play is not None and prev_play["period"] != play["period"]:
             prev_play = None
 
+        homeinclude, awayinclude = check_play(play,
+            teamStrengths,
+            scoreSituation,
+            hsc,
+            asc,
+            homeTeam,
+            awayTeam,
+            p2t)
+        include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
+
         # Check for datetime for times
         if type(play["periodTime"]) != type(6):
             play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute  # Thanks, NHL
-        if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
+        if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"] and include:
             zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
-            if danger < 3:
+            if danger < 3: 
                 stats[play["team_id"]]["scf"] += 1
             else:
                 stats[play["team_id"]]["hscf"] += 1
 
-        homeinclude, awayinclude = check_play(play, teamStrengths, scoreSituation, hsc, asc, homeTeam, awayTeam, p2t)
         playTime = 0
         if prev_play is not None:
             playTime = play["periodTime"] - prev_play["periodTime"]
@@ -139,8 +151,6 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
             stats[homeTeam]["toi"] += playTime
         if awayinclude:
             stats[awayTeam]["toi"] += playTime
-
-        include = (play["team_id"] == homeTeam and homeinclude) or (play["team_id"] == awayTeam and awayinclude)
 
         if play["playType"] == "GOAL":
             if include:
@@ -162,7 +172,8 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                 stats[awayTeam]["zso"] += 1
             elif play["xcoord"] > 25.00 and homeinclude:
                 stats[homeTeam]["zso"] += 1
-            stats[play["team_id"]]["fo_w"] += 1
+            if include:
+                stats[play["team_id"]]["fo_w"] += 1
         elif play["playType"] == "HIT":
             if include:
                 stats[play["team_id"]]["hit"] += 1
