@@ -23,9 +23,17 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
     hg = 0
     ag = 0
 
-    for player in play["players"]:
+    try:
+        period = int(period)
+    except:
+        pass
+    teamStrengths = str(teamStrengths)
+    scoreSituation = str(scoreSituation)
+
+    for player in play["onice"]:
         pinfo = p2t[player["player_id"]]
         if pinfo[1] == homeTeam:
+            print pinfo
             if pinfo[2] == 0:
                 hp += 1
             else:
@@ -35,6 +43,7 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
                 ap += 1
             else:
                 ag += 1
+
     if teamStrengths is None or teamStrengths == "all":
         hb, ab = True, True
     elif teamStrengths == "4v4" and hp == 4 and ap == 4:
