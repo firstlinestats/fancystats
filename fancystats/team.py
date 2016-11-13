@@ -15,8 +15,8 @@ def init_team():
 
 
 def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, awayTeam, p2t):
-    hb = False
-    ab = False
+    hb = True
+    ab = True
 
     hp = 0
     ap = 0
@@ -42,83 +42,105 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
                 ap += 1
             else:
                 ag += 1
+    allh = hp + hg
+    alla = ap + ag
 
-    if teamStrengths is None or teamStrengths == "all":
-        hb, ab = True, True
-    elif teamStrengths == "4v4" and hp == 4 and ap == 4:
-        hb, ab = True, True
-    elif teamStrengths == "even" and hp == ap and hp == 5:
-        hb, ab = True, True
+    # Find situations where play should not be included
+    ## Team Strengths
+    if teamStrengths == "even":
+        # home and away skaters must be 5, each team must have a goalie
+        if hp != 5 or ap != 5 or ag != 1 or hg != 1:
+            hb, ab = False, False
     elif teamStrengths == "pp":
-        if hp == ap + 1:
-            hb, ab = True, False
-        elif hp + 1 == ap:
-            hb, ab = False, True
+        # a team is said to be on a power play when at least one opposing player is serving a
+        # penalty, and the team has a numerical advantage on the ice (whenever both teams have
+        # the same number of players on the ice, there is no power play)
+        if allh > alla:
+            ab = False  # Home is on the power play
+        elif alla > allh:
+            hb = False  # Away is on the power play
+        elif alla == allh:
+            hb, ab = False, False  # Teams have even number of players on ice
     elif teamStrengths == "pk":
-        if hp == ap + 1:
-            hb, ab = False, True
-        elif hp + 1 == ap:
-            hb, ab = True, False
-    elif teamStrengths == "3v3" and hp == 3 and ap == 3:
-        hb, ab = True, True
+        # a team is said to be on a power play when at least one opposing player is serving a
+        # penalty, and the team has a numerical advantage on the ice (whenever both teams have
+        # the same number of players on the ice, there is no power play)
+        if allh > alla:
+            hb = False  # Home is on the power play
+        elif alla > allh:
+            ab = False  # Away is on the power play
+        elif alla == allh:
+            hb, ab = False, False  # Teams have even number of players on ice
+    elif teamStrengths == "4v4":
+        # teams must have 4 skaters and 1 goalie
+        if hp != 4 or ap != 4 or ag != 1 or hg != 1:
+            hb, ab = False, False
     elif teamStrengths == "og":
-        if hg is True and ag is False:
-            hb, ab = False, True
-        elif hg is False and ag is True:
-            hb, ab = True, False
-        elif hg is True and ag is True:
-            hb, ab = True, True
+        if ag != 0:
+            hb = False
+        if hg != 0:
+            ab = False
     elif teamStrengths == "tg":
-        if hg is True and ag is False:
-            hb, ab = True, False
-        elif hg is False and ag is True:
-            hb, ab = False, True
-        elif hg is True and ag is True:
-            hb, ab = True, True
-    if scoreSituation is not None and scoreSituation != "all":
-        # Only account for removing the play!
-        if scoreSituation == "t3+":
-            if hsc <= asc + 3:
-                hb = False
-            if asc <= hsc + 3:
-                ab = False
-        elif scoreSituation == "t2":
-            if hsc != asc - 2:
-                hb = False
-            if asc != hsc - 2:
-                ab = False
-        elif scoreSituation == "t1":
-            if hsc != asc - 1:
-                hb = False
-            if asc != hsc - 1:
-                ab = False
-        elif scoreSituation == "t":
-            if hsc != asc:
-                hb, ab = False, False
-        elif scoreSituation == "l3+":
-            if hsc < asc + 3:
-                hb = False
-            if asc < hsc + 3:
-                ab = False
-        elif scoreSituation == "l2":
-            if hsc != asc + 2:
-                hb = False
-            if asc != hsc + 2:
-                ab = False
-        elif scoreSituation == "l1":
-            if hsc != asc + 1:
-                hb = False
-            if asc != hsc + 1:
-                ab = False
-        elif scoreSituation == "w1":
-            if hsc > asc + 1 or hsc < asc - 1:
-                hb, ab = False, False
+        if ag != 0:
+            ab = False
+        if hg != 0:
+            hb = False
+    elif teamStrengths == "3v3":
+        if hp != 3 or ap != 3 or ag != 1 or hg != 1:
+            hb, ab = False, False
+
+    ## Score Situations
+    if scoreSituation == "t3+":
+        if hsc - asc < 3:
+            ab = False  # Not currently trailing by 3 or more
+        if asc - hsc < 3:
+            hb = False
+    elif scoreSituation == "t2":
+        # Check to see if the team is trailing by 2
+        if hsc - asc != 2:
+            ab = False
+        if asc - hsc != 2:
+            hb = False
+    elif scoreSituation == "t1":
+        # Check to see if the team is trailing by 2
+        if hsc - asc != 1:
+            ab = False
+        if asc - hsc != 1:
+            hb = False
+    elif scoreSituation == "t":
+        if hsc != asc:
+            hb, ab = False, False
+    elif scoreSituation == "l1":
+        # Check to see if the team is winning by 1
+        if hsc - asc != 1:
+            hb = False
+        if asc - hsc != 1:
+            ab = False
+    elif scoreSituation == "l2":
+        # Check to see if the team is winning by 2
+        if hsc - asc != 2:
+            hb = False
+        if asc - hsc != 2:
+            ab = False
+    elif scoreSituation == "l3+":
+        # Check to see if the team is winning by 3+
+        if hsc - asc < 3:
+            hb = False
+        if asc - hsc < 3:
+            ab = False
+    elif scoreSituation == "w1":
+        diff = abs(hsc - asc)
+        if diff > 1:
+            hb, ab = False, False
+
+    ## Periods
     if period is not None and period != "all":
         if period == "OT":
             if play["period"] < 4:
                 hb, ab = False, False
         elif play["period"] != int(period):
             hb, ab = False, False
+
     return hb, ab
 
 
