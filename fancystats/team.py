@@ -33,7 +33,6 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
     for player in play["onice"]:
         pinfo = p2t[player["player_id"]]
         if pinfo[1] == homeTeam:
-            print pinfo
             if pinfo[2] == 0:
                 hp += 1
             else:
