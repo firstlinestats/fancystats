@@ -5,7 +5,8 @@ import toi
 
 def init_team():
     ts = {}
-    numberkeys = ["gf", "sf", "msf", "bsf", "bsa", "cf", "scf", "hscf", "zso", "hit", "pn", "fo_w", "toi"]
+    numberkeys = ["give", "take", "gf", "sf", "msf", "bsf", "bsa", "cf", "scf",
+        "hscf", "zso", "hit", "pn", "fo_w", "toi"]
     stringkeys = ["team", ]
     for n in numberkeys:
         ts[n] = 0
@@ -30,20 +31,26 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
     teamStrengths = str(teamStrengths)
     scoreSituation = str(scoreSituation)
 
-    for player in play["onice"]:
-        pinfo = p2t[player["player_id"]]
-        if pinfo[1] == homeTeam:
-            if pinfo[2] == 0:
-                hp += 1
+    if "onice" in play:
+        for player in play["onice"]:
+            pinfo = p2t[player["player_id"]]
+            if pinfo[1] == homeTeam:
+                if pinfo[2] == 0:
+                    hp += 1
+                else:
+                    hg += 1
             else:
-                hg += 1
-        else:
-            if pinfo[2] == 0:
-                ap += 1
-            else:
-                ag += 1
-    allh = hp + hg
-    alla = ap + ag
+                if pinfo[2] == 0:
+                    ap += 1
+                else:
+                    ag += 1
+        allh = hp + hg
+        alla = ap + ag
+    else:
+        hp = play["homeSkaters"]
+        ap = play["awaySkaters"]
+        allh = hp + play["homeGoalie"]
+        alla = ap + play["awayGoalie"]
 
     # Find situations where play should not be included
     ## Team Strengths
@@ -165,7 +172,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
             play["periodTime"] = play["periodTime"].hour * 60 + play["periodTime"].minute  # Thanks, NHL
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"] and include:
             zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
-            if danger < 3: 
+            if danger < 3:
                 stats[play["team_id"]]["scf"] += 1
             else:
                 stats[play["team_id"]]["hscf"] += 1
@@ -215,6 +222,12 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         elif play["playType"] == "PENALTY":
             if include:
                 stats[play["team_id"]]["pn"] += 1
+        elif play["playType"] == "GIVEAWAY":
+            if include:
+                stats[play["team_id"]]["give"] += 1
+        elif play["playType"] == "TAKEAWAY":
+            if include:
+                stats[play["team_id"]]["take"] += 1
 
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
             prev_shot = play
@@ -227,7 +240,8 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         else:
             bsf = stats[homeTeam]["bsf"]
         td["cf"] = corsi.calc_corsi(td["sf"], td["msf"], td["bsa"], "team.get_stats")
+        td["toiseconds"] = td["toi"]
         td["toi"] = toi.format_minutes(td["toi"])
 
     return stats
-            
+
