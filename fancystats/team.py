@@ -49,6 +49,8 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
     else:
         hp = play["homeSkaters"]
         ap = play["awaySkaters"]
+        hg = play["homeGoalie"]
+        ag = play["awayGoalie"]
         allh = hp + play["homeGoalie"]
         alla = ap + play["awayGoalie"]
 

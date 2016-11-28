@@ -19,9 +19,14 @@ def get_player_position(given):
 
 
 def init_player(name="", position="", team=""):
-    numberkeys = ["g", "a1", "a2", "p", "cf", "ca", "ff", "fa", "gplusminus", "fo_w", "fo_l",
-    "hitplus", "hitminus", "pnplus", "pnminus", "gf", "ga", "sf", "sa", "msf", "msa", "bsf", "bsa",
-    "icf", "save", "ab", "bk", "ihsc", "isc", "zso", "zsd", "scf", "sca", "sh", "ms", "toi"]
+    numberkeys = ["g", "a1", "a2", "p", "cf", "ca", "ff",
+    "fa", "gplusminus", "fo_w", "fo_l",
+    "hitplus", "hitminus", "pnplus", "pnminus", "gf", "ga",
+    "sf", "sa", "msf", "msa", "bsf", "bsa",
+    "icf", "save", "bk", "ihsc", "isc", "zso", "zsd",
+    "scf", "sca", "sh", "ms", "toi",
+    "onsf", "onsa", "onmsf", "onmsa", "onbsf", "onbsa",
+    "hscf", "hsca"]
     strkeys = []
     player = {}
     for n in numberkeys:
@@ -144,6 +149,7 @@ def get_goalie_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSitu
 
     for pid in stats:
         player = stats[pid]
+        player["toiseconds"] = player["toi"]
         player["toi"] = toi.format_minutes(player["toi"])
 
     return stats
@@ -186,6 +192,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
         if play["playType"] == "GOAL":
             # Individual stats
+            zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
             for player in play["players"]:
                 pid, pteam = get_info(player, stats, homeTeam, awayTeam)
                 pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
@@ -194,6 +201,10 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                     if ptype == 5:
                         stats[pteam][pid]["g"] += 1
                         stats[pteam][pid]["sf"] += 1
+                        if danger < 3:
+                            stats[pteam][pid]["isc"] += 1
+                        else:
+                            stats[pteam][pid]["ihsc"] += 1
                     elif ptype == 6:
                         stats[pteam][pid]["a1"] += 1
                     elif ptype == 16:
@@ -201,44 +212,69 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
             # On-Ice stats
             play_corsi(stats, play, homeTeam, awayTeam, True, homeinclude, awayinclude)
+            play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "SHOT":
             # Individual Stats
+            zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
             for player in play["players"]:
                 pid, pteam = get_info(player, stats, homeTeam, awayTeam)
                 pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
                 if player["player_type"] == 7 and pin:
                     stats[pteam][pid]["sf"] += 1
+                    if danger < 3:
+                        stats[pteam][pid]["isc"] += 1
+                    else:
+                        stats[pteam][pid]["ihsc"] += 1
 
             # On-Ice stats
             play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
             play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "MISSED_SHOT":
             # Individual Stats
+            zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
             for player in play["players"]:
                 pid, pteam = get_info(player, stats, homeTeam, awayTeam)
                 pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
                 if player["player_type"] == 7 and pin:
-                    stats[pteam][pid]["sf"] += 1
+                    stats[pteam][pid]["msf"] += 1
+                    if danger < 3:
+                        stats[pteam][pid]["isc"] += 1
+                    else:
+                        stats[pteam][pid]["ihsc"] += 1
 
             # On-Ice stats
             play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
             play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_onicemissedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "BLOCKED_SHOT" :
             # Individual Stats
+            zone, danger = shot.scoring_chance_standard(play, prev_shot, prev_play)
             for player in play["players"]:
                 pid, pteam = get_info(player, stats, homeTeam, awayTeam)
                 pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
                 if player["player_type"] == 7 and pin:
-                    stats[pteam][pid]["sf"] += 1
+                    stats[pteam][pid]["bsf"] += 1
+                    if danger < 3:
+                        stats[pteam][pid]["isc"] += 1
+                    else:
+                        stats[pteam][pid]["ihsc"] += 1
+                elif player["player_type"] == 9 and pin:
+                    stats[pteam][pid]["bk"] += 1
 
             # On-Ice stats
 
             oawayinclude = play["team_id"] == homeTeam and awayinclude
             ohomeinclude = play["team_id"] == awayTeam and homeinclude
             play_corsi(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
+            play_oniceblockedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "FACEOFF":
             # Individual Stats
@@ -274,6 +310,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         for pid in stats[pteam]:
             player = stats[pteam][pid]
             player["p"] = player["g"] + player["a1"] + player["a2"]
+            player["toiseconds"] = player["toi"]
             player["toi"] = toi.format_minutes(player["toi"])
 
     return stats
@@ -285,6 +322,35 @@ def play_fenwick(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclu
 
 def play_corsi(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
     play_stat(stats, play, homeTeam, awayTeam, "cf", "ca", isGoal, homeinclude, awayinclude)
+
+
+def play_oniceshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
+    play_stat(stats, play, homeTeam, awayTeam, "onsf", "onsa", isGoal, homeinclude, awayinclude)
+
+
+def play_onicemissedshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
+    play_stat(stats, play, homeTeam, awayTeam, "onmsf", "onmsa", isGoal, homeinclude, awayinclude)
+
+
+def play_oniceblockedshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
+    play_stat(stats, play, homeTeam, awayTeam, "onbsf", "onbsa", isGoal, homeinclude, awayinclude)
+
+
+def play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger):
+    for player in play["onice"]:
+        pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+        pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+        if pin and pteam is not None and pid in stats[pteam]:
+            if pteam == play["team_id"]:
+                if danger < 3:
+                    stats[pteam][pid]["scf"] += 1
+                else:
+                    stats[pteam][pid]["hscf"] += 1
+            else:
+                if danger < 3:
+                    stats[pteam][pid]["sca"] += 1
+                else:
+                    stats[pteam][pid]["hsca"] += 1
 
 
 def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal, homeinclude, awayinclude):
