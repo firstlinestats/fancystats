@@ -23,7 +23,7 @@ def init_player(name="", position="", team=""):
     "fa", "gplusminus", "fo_w", "fo_l",
     "hitplus", "hitminus", "pnplus", "pnminus", "gf", "ga",
     "sf", "sa", "msf", "msa", "bsf", "bsa",
-    "icf", "save", "bk", "ihsc", "isc", "zso", "zsd",
+    "icf", "save", "bk", "ihsc", "isc", "zso", "zsd", "zsn",
     "scf", "sca", "sh", "ms", "toi",
     "onsf", "onsa", "onmsf", "onmsa", "onbsf", "onbsa",
     "hscf", "hsca"]
@@ -285,6 +285,35 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                     stats[pteam][pid]["fo_w"] += 1
                 elif player["player_type"] == 2 and pin:
                     stats[pteam][pid]["fo_l"] += 1
+            if play["period"] == 2 or play["period"] == 4:
+                xcoord = -play["xcoord"]
+            else:
+                xcoord = play["xcoord"]
+            if xcoord < -25.00 and awayinclude:
+                for player in play["onice"]:
+                    pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                    pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+                    if pin and "zso" in stats[pteam][pid]:
+                        if pteam == awayTeam:
+                            stats[pteam][pid]["zso"] += 1
+                        else:
+                            stats[pteam][pid]["zsd"] += 1
+            elif xcoord > 25.00 and homeinclude:
+                for player in play["onice"]:
+                    pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                    pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+                    if pin and "zso" in stats[pteam][pid]:
+                        if pteam == homeTeam:
+                            stats[pteam][pid]["zso"] += 1
+                        else:
+                            stats[pteam][pid]["zsd"] += 1
+            else:
+                for player in play["onice"]:
+                    pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+                    pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+                    if pin and "zsn" in stats[pteam][pid]:
+                        stats[pteam][pid]["zsn"] += 1
+
         elif play["playType"] == "HIT":
             for player in play["players"]:
                 pid, pteam = get_info(player, stats, homeTeam, awayTeam)
