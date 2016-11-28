@@ -145,6 +145,8 @@ def corsi_percent(saf, saa, *args, **kwargs):
     saf = shot attempts for (CF)
     saa = shot attempts against (CA)
     """
+    if saf is None or saa is None:
+        return 0
     if saf + saa == 0:
         return 0
     try:
@@ -176,4 +178,4 @@ def corsi_rel(coron, coroff):
     except:
         print "Corsi Exception: Corsi ON and Corsi OFF must both be integers"
         raise Exception
-    
+
