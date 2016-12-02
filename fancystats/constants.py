@@ -32,10 +32,10 @@ PERIOD_CHOICES = (
 )
 
 gameTypes = (
-    ("PR", "Pre-season"),
-    ("R", "Regular season"),
+    ("PR", "Pre-Season"),
+    ("R", "Regular Season"),
     ("P", "Playoffs"),
-    ("A", "All-Star game")
+    ("A", "All-Star Game")
 )
 
 gameStates = (
@@ -138,16 +138,16 @@ teamNames = (
     (26, 'Kings'),
     (14, 'Lightning'),
     (10, 'Maple Leafs'),
-    (22, 'Oilers'), 
-    (13, 'Panthers'), 
-    (5, 'Penguins'), 
-    (18, 'Predators'), 
-    (3, 'Rangers'), 
-    (17, 'Red Wings'), 
-    (7, 'Sabres'), 
-    (9, 'Senators'), 
-    (28, 'Sharks'), 
-    (25, 'Stars'), 
+    (22, 'Oilers'),
+    (13, 'Panthers'),
+    (5, 'Penguins'),
+    (18, 'Predators'),
+    (3, 'Rangers'),
+    (17, 'Red Wings'),
+    (7, 'Sabres'),
+    (9, 'Senators'),
+    (28, 'Sharks'),
+    (25, 'Stars'),
     (30, 'Wild')
 )
 
