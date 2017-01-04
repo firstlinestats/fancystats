@@ -211,9 +211,9 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                         stats[pteam][pid]["a2"] += 1
 
             # On-Ice stats
-            play_corsi(stats, play, homeTeam, awayTeam, True, homeinclude, awayinclude)
-            play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
+            stats = play_corsi(stats, play, homeTeam, awayTeam, True, homeinclude, awayinclude)
+            stats = play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "SHOT":
             # Individual Stats
@@ -229,10 +229,10 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                         stats[pteam][pid]["ihsc"] += 1
 
             # On-Ice stats
-            play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
+            stats = play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_oniceshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "MISSED_SHOT":
             # Individual Stats
@@ -248,10 +248,10 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                         stats[pteam][pid]["ihsc"] += 1
 
             # On-Ice stats
-            play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_onicemissedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
+            stats = play_fenwick(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_corsi(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_onicemissedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "BLOCKED_SHOT" :
             # Individual Stats
@@ -272,9 +272,9 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
             oawayinclude = play["team_id"] == homeTeam and awayinclude
             ohomeinclude = play["team_id"] == awayTeam and homeinclude
-            play_corsi(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
-            play_oniceblockedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
+            stats = play_corsi(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
+            stats = play_oniceblockedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
+            stats = play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "FACEOFF":
             # Individual Stats
@@ -346,23 +346,23 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
 
 def play_fenwick(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
-    play_stat(stats, play, homeTeam, awayTeam, "ff", "fa", isGoal, homeinclude, awayinclude)
+    return play_stat(stats, play, homeTeam, awayTeam, "ff", "fa", isGoal, homeinclude, awayinclude)
 
 
 def play_corsi(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
-    play_stat(stats, play, homeTeam, awayTeam, "cf", "ca", isGoal, homeinclude, awayinclude)
+    return play_stat(stats, play, homeTeam, awayTeam, "cf", "ca", isGoal, homeinclude, awayinclude)
 
 
 def play_oniceshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
-    play_stat(stats, play, homeTeam, awayTeam, "onsf", "onsa", isGoal, homeinclude, awayinclude)
+    return play_stat(stats, play, homeTeam, awayTeam, "onsf", "onsa", isGoal, homeinclude, awayinclude)
 
 
 def play_onicemissedshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
-    play_stat(stats, play, homeTeam, awayTeam, "onmsf", "onmsa", isGoal, homeinclude, awayinclude)
+    return play_stat(stats, play, homeTeam, awayTeam, "onmsf", "onmsa", isGoal, homeinclude, awayinclude)
 
 
 def play_oniceblockedshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
-    play_stat(stats, play, homeTeam, awayTeam, "onbsf", "onbsa", isGoal, homeinclude, awayinclude)
+    return play_stat(stats, play, homeTeam, awayTeam, "onbsf", "onbsa", isGoal, homeinclude, awayinclude)
 
 
 def play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger):
@@ -380,6 +380,7 @@ def play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger):
                     stats[pteam][pid]["sca"] += 1
                 else:
                     stats[pteam][pid]["hsca"] += 1
+    return stats
 
 
 def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal, homeinclude, awayinclude):
@@ -397,6 +398,7 @@ def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal, homeinclude, away
                 if isGoal:
                     stats[pteam][pid]["ga"] += 1
                     stats[pteam][pid]["gplusminus"] -= 1
+    return stats
 
 
 def get_info(player, stats, homeTeam, awayTeam):
