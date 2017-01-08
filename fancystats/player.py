@@ -142,7 +142,6 @@ def get_goalie_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSitu
                             field = "sh"
                         stats[pid][field] += 1
 
-
         if play["playType"] in ["SHOT", "GOAL", "MISSED_SHOT", "BLOCKED_SHOT"]:
             prev_shot = play
         prev_play = play
