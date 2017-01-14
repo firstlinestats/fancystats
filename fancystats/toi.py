@@ -7,7 +7,7 @@ def format_minutes(seconds):
     if h > 0:
         return "%d:%02d:%02d" % (h, m, s)
     else:
-        return "%d:%02d" % (m, s)
+        return "%02d:%02d" % (m, s)
 
 
 def time_report(toi, seconds, games=1, format="seconds"):
