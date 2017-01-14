@@ -1,8 +1,8 @@
 
 
 TEAMSTRENGTHS_CHOICES = (
-    ("all", "All"),
     ("even", "Even Strength 5v5"),
+    ("all", "All"),
     ("pp", "Power Play"),
     ("pk", "Short Handed"),
     ("4v4", "4v4"),
