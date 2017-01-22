@@ -179,6 +179,8 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         playTime = 0
         if prev_play is not None:
             playTime = play["periodTime"] - prev_play["periodTime"]
+            if playTime < 0:
+                raise Exception("NHL why... prev_play: {} current_play: {}".format(prev_play["eventIdx"], play["eventIdx"]))
         else:
             playTime = play["periodTime"]
 
