@@ -270,10 +270,7 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
                     stats[pteam][pid]["bk"] += 1
 
             # On-Ice stats
-
-            oawayinclude = homeinclude
-            ohomeinclude = awayinclude
-            stats = play_corsi_block(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
+            stats = play_corsi_block(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
             stats = play_oniceblockedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
             stats = play_sc_block(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
