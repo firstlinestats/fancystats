@@ -271,11 +271,11 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
 
             # On-Ice stats
 
-            oawayinclude = play["team_id"] == homeTeam and awayinclude
-            ohomeinclude = play["team_id"] == awayTeam and homeinclude
-            stats = play_corsi(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
+            oawayinclude = homeinclude
+            ohomeinclude = awayinclude
+            stats = play_corsi_block(stats, play, homeTeam, awayTeam, False, ohomeinclude, oawayinclude)
             stats = play_oniceblockedshot(stats, play, homeTeam, awayTeam, False, homeinclude, awayinclude)
-            stats = play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
+            stats = play_sc_block(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger)
 
         elif play["playType"] == "FACEOFF":
             # Individual Stats
@@ -354,6 +354,9 @@ def play_corsi(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude
     return play_stat(stats, play, homeTeam, awayTeam, "cf", "ca", isGoal, homeinclude, awayinclude)
 
 
+def play_corsi_block(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
+    return play_stat(stats, play, homeTeam, awayTeam, "ca", "cf", isGoal, homeinclude, awayinclude)
+
 def play_oniceshot(stats, play, homeTeam, awayTeam, isGoal, homeinclude, awayinclude):
     return play_stat(stats, play, homeTeam, awayTeam, "onsf", "onsa", isGoal, homeinclude, awayinclude)
 
@@ -384,10 +387,30 @@ def play_sc(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger):
     return stats
 
 
+def play_sc_block(stats, play, homeTeam, awayTeam, homeinclude, awayinclude, danger):
+    for player in play["onice"]:
+        pid, pteam = get_info(player, stats, homeTeam, awayTeam)
+        pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+        if pin and pteam is not None and pid in stats[pteam]:
+            if pteam == play["team_id"]:
+                if danger < 3:
+                    stats[pteam][pid]["sca"] += 1
+                else:
+                    stats[pteam][pid]["hsca"] += 1
+            else:
+                if danger < 3:
+                    stats[pteam][pid]["scf"] += 1
+                else:
+                    stats[pteam][pid]["hscf"] += 1
+    return stats
+
+
 def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal, homeinclude, awayinclude):
     for player in play["onice"]:
         pid, pteam = get_info(player, stats, homeTeam, awayTeam)
         pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
+        if player['player_id'] == 8474565:
+            print pin
         if pin and pteam is not None and pid in stats[pteam]:
             if pteam == play["team_id"]:
                 stats[pteam][pid][vf] += 1

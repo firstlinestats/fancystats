@@ -149,7 +149,6 @@ def check_play(play, teamStrengths, scoreSituation, period, hsc, asc, homeTeam, 
                 hb, ab = False, False
         elif play["period"] != int(period):
             hb, ab = False, False
-
     return hb, ab
 
 
