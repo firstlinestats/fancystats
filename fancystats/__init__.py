@@ -6,3 +6,4 @@ import player
 import shot
 import toi
 import team
+import goalie
