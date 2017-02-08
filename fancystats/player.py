@@ -409,8 +409,6 @@ def play_stat(stats, play, homeTeam, awayTeam, vf, va, isGoal, homeinclude, away
     for player in play["onice"]:
         pid, pteam = get_info(player, stats, homeTeam, awayTeam)
         pin = (pteam == homeTeam and homeinclude) or (pteam == awayTeam and awayinclude)
-        if player['player_id'] == 8474565:
-            print pin
         if pin and pteam is not None and pid in stats[pteam]:
             if pteam == play["team_id"]:
                 stats[pteam][pid][vf] += 1
