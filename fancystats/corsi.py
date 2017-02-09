@@ -74,7 +74,7 @@ def calc_60(toi, c, fname):
     """
     try:
         if toi > 0:
-            return (c * 60 * 60) / toi
+            return c / toi * 60
         elif toi == 0:
             return 0
         else:
