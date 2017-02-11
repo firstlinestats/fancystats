@@ -1,7 +1,9 @@
 import constants
+import corsi
 import team
 import shot
 import toi
+from goalie import adj_save_percent
 
 
 def get_player_type(given):
@@ -147,9 +149,16 @@ def get_goalie_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSitu
         prev_play = play
 
     for pid in stats:
-        player = stats[pid]
-        player["toiseconds"] = player["toi"]
-        player["toi"] = toi.format_minutes(player["toi"])
+        goalie = stats[pid]
+        goalie["toiseconds"] = goalie["toi"]
+        goalie["toi"] = toi.format_minutes(goalie["toi"])
+        goalie['saves'] = goalie['sl'] + goalie['sm'] + goalie['sh'] + goalie['su']
+        goalie['goals'] = goalie['gl'] + goalie['gm'] + goalie['gh'] + goalie['gu']
+        goalie['save_percent'] = '%.1f' % corsi.corsi_percent(goalie['saves'], goalie['goals'])
+        goalie['low_save_percent'] = '%.1f' % corsi.corsi_percent(goalie['sl'], goalie['gl'])
+        goalie['medium_save_percent'] = '%.1f' % corsi.corsi_percent(goalie['sm'], goalie['gm'])
+        goalie['high_save_percent'] = '%.1f' % corsi.corsi_percent(goalie['sh'], goalie['gh'])
+        goalie['unknown_save_percent'] = '%.1f' % corsi.corsi_percent(goalie['su'], goalie['gu'])
 
     return stats
 

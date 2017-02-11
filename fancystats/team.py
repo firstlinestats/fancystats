@@ -238,11 +238,28 @@ def get_stats(pbp, homeTeam, awayTeam, p2t, teamStrengths=None, scoreSituation=N
         td = stats[team]
         if team == homeTeam:
             bsf = stats[awayTeam]["bsf"]
+            sa = stats[awayTeam]["sf"]
+            ga = stats[awayTeam]["gf"]
+            ca = corsi.calc_corsi(stats[awayTeam]["sf"], stats[awayTeam]["msf"], stats[awayTeam]["bsa"], "team.get_stats")
+            fa = ca - td["bsf"]
         else:
             bsf = stats[homeTeam]["bsf"]
+            sa = stats[homeTeam]["sf"]
+            ga = stats[homeTeam]["gf"]
+            ca = corsi.calc_corsi(stats[homeTeam]["sf"], stats[homeTeam]["msf"], stats[homeTeam]["bsa"], "team.get_stats")
+            fa = ca - td["bsf"]
         td["cf"] = corsi.calc_corsi(td["sf"], td["msf"], td["bsa"], "team.get_stats")
+        td["ff"] = td["cf"] - td["bsa"]
+        save_percent = corsi.corsi_percent(sa, ga)
+        shot_percent = corsi.corsi_percent(td['gf'], td['sf'])
+        td['pdo'] = '%.1f' % (save_percent + shot_percent)
         td["toiseconds"] = td["toi"]
         td["toi"] = toi.format_minutes(td["toi"])
+        td['csh'] = '%.1f' % corsi.corsi_percent(td['gf'], td['cf'])
+        td['csa'] = '%.1f' % (100 - corsi.corsi_percent(ga, ca))
+        td['fsh'] = '%.1f' % corsi.corsi_percent(td['gf'], td['ff'])
+        print corsi.corsi_percent(ga, fa), ga, fa
+        td['fsa'] = '%.1f' % (100 - corsi.corsi_percent(ga, fa))
 
     return stats
 
